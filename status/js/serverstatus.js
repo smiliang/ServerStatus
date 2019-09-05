@@ -94,6 +94,7 @@ function uptime() {
 						"<td id=\"uptime\">Loading...</td>" +
 						"<td id=\"load\">Loading...</td>" +
 						"<td id=\"network\">Loading...</td>" +
+						"<td id=\"traffic\">Loading...</td>" +
 						"<td id=\"cpu\"><div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading...</small></div></div></td>" +
 						"<td id=\"memory\"><div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading...</small></div></div></td>" +
 						"<td id=\"hdd\"><div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading...</small></div></div></td>" +
@@ -149,6 +150,7 @@ function uptime() {
 					TableRow.children["uptime"].innerHTML = "–";
 					TableRow.children["load"].innerHTML = "–";
 					TableRow.children["network"].innerHTML = "–";
+					TableRow.children["traffic"].innerHTML = "–";
 					TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-danger";
 					TableRow.children["cpu"].children[0].children[0].style.width = "100%";
 					TableRow.children["cpu"].children[0].children[0].innerHTML = "<small>Down</small>";
@@ -196,6 +198,31 @@ function uptime() {
 				else
 					netstr += (result.servers[i].network_tx/1000/1000).toFixed(1) + "M";
 				TableRow.children["network"].innerHTML = netstr;
+
+				// Traffic
+				var trafficstr = "";
+				if(result.servers[i].network_in < 1024)
+					trafficstr += result.servers[i].network_in.toFixed(0) + "B";
+				else if(result.servers[i].network_in < 1024*1024)
+					trafficstr += (result.servers[i].network_in/1024).toFixed(0) + "K";
+				else if(result.servers[i].network_in < 1024*1024*1024)
+					trafficstr += (result.servers[i].network_in/1024/1024).toFixed(1) + "M";
+				else if(result.servers[i].network_in < 1024*1024*1024*1024)
+					trafficstr += (result.servers[i].network_in/1024/1024/1024).toFixed(2) + "G";
+				else
+					trafficstr += (result.servers[i].network_in/1024/1024/1024/1024).toFixed(3) + "T";
+				trafficstr += "|"
+				if(result.servers[i].network_out < 1024)
+					trafficstr += result.servers[i].network_out.toFixed(0) + "B";
+				else if(result.servers[i].network_out < 1024*1024)
+					trafficstr += (result.servers[i].network_out/1024).toFixed(0) + "K";
+				else if(result.servers[i].network_out < 1024*1024*1024)
+					trafficstr += (result.servers[i].network_out/1024/1024).toFixed(1) + "M";
+				else if(result.servers[i].network_out < 1024*1024*1024*1024)
+					trafficstr += (result.servers[i].network_out/1024/1024/1024).toFixed(2) + "G";
+				else
+					trafficstr += (result.servers[i].network_out/1024/1024/1024/1024).toFixed(3) + "T";
+				TableRow.children["traffic"].innerHTML = trafficstr;
 
 				// CPU
 				if (result.servers[i].cpu >= 90)
@@ -256,7 +283,7 @@ function uptime() {
 				TableRow.children["uptime"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-error\"><small>Error</small></div></div>";
 				TableRow.children["load"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-error\"><small>Error</small></div></div>";
 				TableRow.children["network"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-error\"><small>Error</small></div></div>";
-				TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-error";
+				TableRow.children["traffic"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-error\"><small>Error</small></div></div>";				TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-error";
 				TableRow.children["cpu"].children[0].children[0].style.width = "100%";
 				TableRow.children["cpu"].children[0].children[0].innerHTML = "<small>Error</small>";
 				TableRow.children["memory"].children[0].children[0].className = "progress-bar progress-bar-error";

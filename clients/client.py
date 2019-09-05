@@ -108,6 +108,18 @@ class Traffic:
 
 		return avgrx, avgtx
 
+def liuliang():
+	NET_IN = 0
+	NET_OUT = 0
+	vnstat=os.popen('vnstat --dumpdb').readlines()
+	for line in vnstat:
+		if line[0:4] == "m;0;":
+			mdata=line.split(";")
+			NET_IN=int(mdata[3])*1024*1024
+			NET_OUT=int(mdata[4])*1024*1024
+			break
+	return NET_IN, NET_OUT
+
 def get_network(ip_version):
 	if(ip_version == 4):
 		HOST = "ipv4.google.com"
@@ -157,6 +169,7 @@ if __name__ == '__main__':
 			while 1:
 				CPU = get_cpu()
 				NetRx, NetTx = traffic.get()
+				NET_IN, NET_OUT = liuliang()
 				Uptime = get_uptime()
 				Load = get_load()
 				MemoryTotal, MemoryUsed, SwapTotal, SwapFree = get_memory()
@@ -180,6 +193,8 @@ if __name__ == '__main__':
 				array['cpu'] = CPU
 				array['network_rx'] = NetRx
 				array['network_tx'] = NetTx
+				array['network_in'] = NET_IN
+				array['network_out'] = NET_OUT
 
 				s.send("update " + json.dumps(array) + "\n")
 		except KeyboardInterrupt:
