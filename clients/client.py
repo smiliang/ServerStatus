@@ -6,7 +6,8 @@ PORT = 35601
 USER = "s01"
 PASSWORD = "some-hard-to-guess-copy-paste-password"
 INTERVAL = 1 # Update interval
-
+SSLENABLED = 0
+SSLCERTPATH = "ssl cert file path"
 
 import socket
 import time
@@ -17,6 +18,7 @@ import os
 import json
 import subprocess
 import collections
+import ssl
 
 def get_uptime():
 	f = open('/proc/uptime', 'r')
@@ -137,7 +139,11 @@ if __name__ == '__main__':
 	while 1:
 		try:
 			print("Connecting...")
-			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			if SSLENABLED:
+				st = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				s = ssl.wrap_socket(st, cert_reqs=ssl.CERT_REQUIRED, ca_certs=SSLCERTPATH)
+			else:
+				s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			s.connect((SERVER, PORT))
 			data = s.recv(1024)
 			if data.find("Authentication required") > -1:
