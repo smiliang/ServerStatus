@@ -157,8 +157,9 @@ if __name__ == '__main__':
 				raise socket.error
 
 			print(data)
-			data = s.recv(1024)
-			print(data)
+			if data.find("IPv4") == -1 and data.find("IPv6") == -1:
+				data = s.recv(1024)
+				print(data)
 
 			timer = 0
 			check_ip = 0
