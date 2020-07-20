@@ -380,6 +380,13 @@ int CMain::ReadConfig()
 	return 0;
 }
 
+void CMain::StartBotThread(void *pBot)
+{
+    MessageBot *pBotLocal = (MessageBot*)pBot;
+    //start msg bot
+    pBotLocal->startBot();
+}
+
 int CMain::Run()
 {
 	if(m_Server.Init(this, m_Config.m_aBindAddr, m_Config.m_Port))
@@ -388,9 +395,7 @@ int CMain::Run()
 	if(ReadConfig())
 		return 1;
 
-
-    	//start msg bot
-    	m_msgBot.startBot();
+    void *BotThread = thread_create(StartBotThread, &m_msgBot);
 
 	// Start JSON Update Thread
 	m_JSONUpdateThreadData.m_ReloadRequired = 2;
@@ -418,6 +423,7 @@ int CMain::Run()
 
 	dbg_msg("server", "Closing.");
 	m_Server.Network()->Close();
+    thread_wait(BotThread);
 	thread_wait(LoadThread);
 
 	return 0;

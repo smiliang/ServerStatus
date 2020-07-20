@@ -76,6 +76,7 @@ class CMain
 	} m_JSONUpdateThreadData;
 
 	static void JSONUpdateThread(void *pUser);
+    static void StartBotThread(void *pBot);
 public:
 	CMain(CConfig Config);
 

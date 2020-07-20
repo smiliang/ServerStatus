@@ -204,7 +204,7 @@ void MessageBot::startBot()
     
     m_bot = new TgBot::Bot(c_botToken);
     m_bot->getEvents().onCommand("start", [&](TgBot::Message::Ptr message) {
-	m_bot->getApi().sendMessage(message->chat->id, "Hi!");
+        m_bot->getApi().sendMessage(message->chat->id, "Hi!");
     });
     m_bot->getEvents().onAnyMessage([&](TgBot::Message::Ptr message) {
         if (StringTools::startsWith(message->text, "/start")) {
@@ -228,6 +228,17 @@ void MessageBot::startBot()
             m_bot->getApi().sendMessage(message->chat->id, "The bot is alive.");
         }
     });
+    
+    try {
+        dbg_msg("Bot username: %s\n", m_bot->getApi().getMe()->username.c_str());
+        TgBot::TgLongPoll longPoll(*m_bot);
+        while (true) {
+            dbg_msg("Long poll started\n");
+            longPoll.start();
+        }
+    } catch (TgBot::TgException& e) {
+        dbg_msg("error: %s\n", e.what());
+    }
 }
 
 void MessageBot::sendMessage(char *msg)
