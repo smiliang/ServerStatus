@@ -161,7 +161,7 @@ bool MessageBot::setChatId(int64_t chatId)
     if (!file) {
         return false;
     }
-    char aBuff[8];
+    char aBuff[16];
     str_format(aBuff, sizeof(aBuff), "%" PRId64 "", chatId);
     io_write(file, aBuff, sizeof(aBuff));
     io_flush(file);
