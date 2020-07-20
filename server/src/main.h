@@ -71,6 +71,7 @@ class CMain
 	{
 		CClient *pClients;
 		CConfig *pConfig;
+		MessageBot *pMsgBot;
 		volatile short m_ReloadRequired;
 	} m_JSONUpdateThreadData;
 

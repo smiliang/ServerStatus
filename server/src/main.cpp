@@ -287,7 +287,7 @@ void CMain::JSONUpdateThread(void *pUser)
 		fs_rename(aJSONFileTmp, pConfig->m_aJSONFile);
         
         if (pMsgBuf - aMsgBuff > 0) {
-            m_msgBot.sendMessage(aMsgBuff);
+            m_pJSONUpdateThreadData->pMsgBot->sendMessage(aMsgBuff);
         }
 		thread_sleep(1000);
 	}
@@ -388,16 +388,18 @@ int CMain::Run()
 	if(ReadConfig())
 		return 1;
 
+
+    	//start msg bot
+    	m_msgBot.startBot();
+
 	// Start JSON Update Thread
 	m_JSONUpdateThreadData.m_ReloadRequired = 2;
 	m_JSONUpdateThreadData.pClients = m_aClients;
 	m_JSONUpdateThreadData.pConfig = &m_Config;
+	m_JSONUpdateThreadData.pMsgBot = &m_msgBot;
 	void *LoadThread = thread_create(JSONUpdateThread, &m_JSONUpdateThreadData);
 	//thread_detach(LoadThread);
     
-    //start msg bot
-    m_msgBot.startBot();
-
 	while(gs_Running)
 	{
 		if(gs_ReloadConfig)

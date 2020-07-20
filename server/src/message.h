@@ -36,7 +36,6 @@ private:
     double m_msgNum;
         
     void genMsg();
-    void resetMsg();
 public:
     char m_aMsg[128];
     void setUsername(char *username);
@@ -45,7 +44,8 @@ public:
     void setIpv6Online(bool online);
     void setCPU(double cpu);
     void shouldSendMsg();
-}
+    void resetMsg();
+};
 
 class MessageBot
 {
@@ -58,5 +58,5 @@ private:
 public:
     void startBot();
     void sendMessage(char *msg);
-}
+};
 #endif /* message_hpp */

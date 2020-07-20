@@ -1,36 +1,36 @@
 #include "message.h"
 #include "system.h"
 #include <cstring>
-#import <stdio.h>
+#include <cstdio>
 #include <inttypes.h>
 
 const char* c_botToken = "PLACE YOUR TOKEN HERE";
 const char* c_chatPasswd = "PLACE YOUR PASSWD HERE";
 
-void ClientObserver:setUsername(char *username)
+void ClientObserver::setUsername(char *username)
 {
     str_copy(m_aUsername, username, sizeof(m_aUsername));
 }
 
-void ClientObserver:setConnected(bool connected)
+void ClientObserver::setConnected(bool connected)
 {
     m_Connected_last = m_Connected;
     m_Connected = connected;
 }
 
-void ClientObserver:setIpv4Online(bool online)
+void ClientObserver::setIpv4Online(bool online)
 {
     m_Online4_last = m_Online4;
     m_Online4 = online;
 }
 
-void ClientObserver:setIpv6Online(bool online)
+void ClientObserver::setIpv6Online(bool online)
 {
     m_Online6_last = m_Online6;
     m_Online6 = online;
 }
 
-void ClientObserver:setCPU(double cpu)
+void ClientObserver::setCPU(double cpu)
 {
     m_CPU = cpu;
     if (cpu > 0.8999 && m_CPUMonitorTime == 0)
@@ -49,7 +49,7 @@ void ClientObserver:setCPU(double cpu)
     }
 }
 
-void ClientObserver:shouldSendMsg()
+void ClientObserver::shouldSendMsg()
 {
     int msgType = MSG_CLIENT_UNKNOWN;
     if (m_Connected != m_Connected_last)
@@ -69,7 +69,7 @@ void ClientObserver:shouldSendMsg()
         msgType = m_Online6 ? MSG_CLIENT_IPv6ONLINE : MSG_CLIENT_IPv6OFFLINE;
     }
     else {
-        if (cpu > 0.8999 && m_CPUMonitorTime > 0)
+        if (m_CPU > 0.8999 && m_CPUMonitorTime > 0)
         {
             if (time_timestamp() - m_CPUMonitorTime > 180) {//Cpu heavy load over 180s.
                 msgType = MSG_CLIENT_CPUOVERLOAD;
@@ -107,7 +107,7 @@ void ClientObserver:shouldSendMsg()
     }
 }
 
-void ClientObserver:genMsg()
+void ClientObserver::genMsg()
 {
     if (MSG_CLIENT_UNKNOWN == m_msgType) {
         memset(m_aMsg, 0, sizeof(m_aMsg));
@@ -143,25 +143,25 @@ void ClientObserver:genMsg()
     }
     else
     {
-        str_format(m_aMsg, sizeof(m_aMsg), "Node %s msgtype error %d.", m_aUsername, msgType);
+        str_format(m_aMsg, sizeof(m_aMsg), "Node %s msgtype error %d.", m_aUsername, m_msgType);
     }
 }
 
-void ClientObserver:resetMsg()
+void ClientObserver::resetMsg()
 {
     memset(m_aMsg, 0, sizeof(m_aMsg));
 }
 
-bool MessageBot:setChatId(int64_t chatId)
+bool MessageBot::setChatId(int64_t chatId)
 {
     m_chatId = chatId;
     
-    char *chatIdFileName = "chatId";
+    constexpr const char *chatIdFileName = "chatId";
     IOHANDLE file = io_open(chatIdFileName, IOFLAG_WRITE);
     if (!file) {
         return false;
     }
-    char *aBuff[8];
+    char aBuff[8];
     str_format(aBuff, sizeof(aBuff), "%" PRId64 "", chatId);
     io_write(file, aBuff, sizeof(aBuff));
     io_flush(file);
@@ -169,19 +169,19 @@ bool MessageBot:setChatId(int64_t chatId)
     return true;
 }
 
-void MessageBot:readChatId()
+void MessageBot::readChatId()
 {
-    char *chatIdFileName = "chatId";
+    constexpr const char *chatIdFileName = "chatId";
     IOHANDLE file = io_open(chatIdFileName, IOFLAG_READ);
     if (!file) {
         dbg_msg("bot", "Couldn't open %s", chatIdFileName);
         return;
     }
-    int fileSize = (int)io_length(File);
+    int fileSize = (int)io_length(file);
     char *pFileData = (char *)malloc(fileSize + 1);
     io_read(file, pFileData, fileSize);
     pFileData[fileSize] = 0;
-    io_close(File);
+    io_close(file);
     
     int64_t i;
     char c ;
@@ -198,15 +198,15 @@ void MessageBot:readChatId()
     free(pFileData);
 }
 
-void MessageBot:startBot()
+void MessageBot::startBot()
 {
     readChatId();
     
     m_bot = new TgBot::Bot(c_botToken);
-    m_bot->getEvents().onCommand("start", [m_bot](TgBot::Message::Ptr message) {
-        m_bot->getApi().sendMessage(message->chat->id, "Hi!");
+    m_bot->getEvents().onCommand("start", [&](TgBot::Message::Ptr message) {
+	m_bot->getApi().sendMessage(message->chat->id, "Hi!");
     });
-    m_bot->getEvents().onAnyMessage([m_bot](TgBot::Message::Ptr message) {
+    m_bot->getEvents().onAnyMessage([&](TgBot::Message::Ptr message) {
         if (StringTools::startsWith(message->text, "/start")) {
             return;
         }
@@ -223,14 +223,14 @@ void MessageBot:startBot()
             }
         }
         if (m_chatId > 0 && message->chat->id == m_chatId) {
-            m_bot->getApi().sendMessage(m_chatId, "The Connection is alive.".);
+            m_bot->getApi().sendMessage(m_chatId, "The Connection is alive.");
         } else {
-            m_bot->getApi().sendMessage(message->chat->id, "The bot is alive.".);
+            m_bot->getApi().sendMessage(message->chat->id, "The bot is alive.");
         }
     });
 }
 
-void MessageBot:sendMessage(char *msg)
+void MessageBot::sendMessage(char *msg)
 {
     if (m_chatId < 1) {
         dbg_msg("chatId not exist, msg discard %s", msg);
