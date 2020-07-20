@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "server.h"
+#include "message.h"
 
 class CConfig
 {
@@ -22,6 +23,7 @@ class CMain
 {
 	CConfig m_Config;
 	CServer m_Server;
+    MessageBot m_msgBot;
 
 	struct CClient
 	{
@@ -61,6 +63,8 @@ class CMain
 			// Options
 			bool m_Pong;
 		} m_Stats;
+        
+        ClientObserver m_clientObserver;
 	} m_aClients[NET_MAX_CLIENTS];
 
 	struct CJSONUpdateThreadData

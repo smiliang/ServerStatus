@@ -216,12 +216,16 @@ void CMain::JSONUpdateThread(void *pUser)
 
 		str_format(pBuf, sizeof(aFileBuf), "{\n\"servers\": [\n");
 		pBuf += strlen(pBuf);
+        
+        char aMsgBuff[128*NET_MAX_CLIENTS];
+        char *pMsgBuf = aMsgBuff;
 
 		for(int i = 0; i < NET_MAX_CLIENTS; i++)
 		{
 			if(!pClients[i].m_Active || pClients[i].m_Disabled)
 				continue;
 
+            pClients[i].m_clientObserver.setConnected(pClients[i].m_Connected);
 			if(pClients[i].m_Connected)
 			{
 				// Uptime
@@ -240,6 +244,10 @@ void CMain::JSONUpdateThread(void *pUser)
 				str_format(pBuf, sizeof(aFileBuf) - (pBuf - aFileBuf), "{ \"name\": \"%s\", \"type\": \"%s\", \"host\": \"%s\", \"location\": \"%s\", \"online4\": %s, \"online6\": %s, \"uptime\": \"%s\", \"load\": %.2f, \"network_rx\": %" PRId64 ", \"network_tx\": %" PRId64 ", \"network_in\": %" PRId64 ", \"network_out\": %" PRId64 ", \"cpu\": %d, \"memory_total\": %" PRId64 ", \"memory_used\": %" PRId64 ", \"swap_total\": %" PRId64 ", \"swap_used\": %" PRId64 ", \"hdd_total\": %" PRId64 ", \"hdd_used\": %" PRId64 ", \"custom\": \"%s\" },\n",
 					pClients[i].m_aName, pClients[i].m_aType, pClients[i].m_aHost, pClients[i].m_aLocation, pClients[i].m_Stats.m_Online4 ? "true" : "false", pClients[i].m_Stats.m_Online6 ? "true" : "false",	aUptime, pClients[i].m_Stats.m_Load, pClients[i].m_Stats.m_NetworkRx, pClients[i].m_Stats.m_NetworkTx, pClients[i].m_Stats.m_NetworkIn, pClients[i].m_Stats.m_NetworkOut, (int)pClients[i].m_Stats.m_CPU, pClients[i].m_Stats.m_MemTotal, pClients[i].m_Stats.m_MemUsed, pClients[i].m_Stats.m_SwapTotal, pClients[i].m_Stats.m_SwapUsed, pClients[i].m_Stats.m_HDDTotal, pClients[i].m_Stats.m_HDDUsed, pClients[i].m_Stats.m_aCustom);
 				pBuf += strlen(pBuf);
+                
+                pClients[i].m_clientObserver.setIpv4Online(pClients[i].m_Stats.m_Online4);
+                pClients[i].m_clientObserver.setIpv6Online(pClients[i].m_Stats.m_Online6);
+                pClients[i].m_clientObserver.setCPU(pClients[i].m_Stats.m_CPU);
 			}
 			else
 			{
@@ -247,6 +255,14 @@ void CMain::JSONUpdateThread(void *pUser)
 					pClients[i].m_aName, pClients[i].m_aType, pClients[i].m_aHost, pClients[i].m_aLocation);
 				pBuf += strlen(pBuf);
 			}
+            
+            pClients[i].m_clientObserver.shouldSendMsg();
+            if (strlen(pClients[i].m_clientObserver.m_aMsg) > 0)
+            {
+                str_format(pMsgBuf, sizeof(aMsgBuff) - (pMsgBuf - aMsgBuff), "%s\n", pClients[i].m_clientObserver.m_aMsg);
+                pMsgBuf += strlen(pMsgBuf);
+                pClients[i].m_clientObserver.resetMsg();
+            }
 		}
 		if(!m_pJSONUpdateThreadData->m_ReloadRequired)
 			str_format(pBuf - 2, sizeof(aFileBuf) - (pBuf - aFileBuf), "\n],\n\"updated\": \"%lld\"\n}", (long long)time(/*ago*/0));
@@ -269,6 +285,10 @@ void CMain::JSONUpdateThread(void *pUser)
 		io_flush(File);
 		io_close(File);
 		fs_rename(aJSONFileTmp, pConfig->m_aJSONFile);
+        
+        if (pMsgBuf - aMsgBuff > 0) {
+            m_msgBot.sendMessage(aMsgBuff);
+        }
 		thread_sleep(1000);
 	}
 	fs_remove(pConfig->m_aJSONFile);
@@ -343,6 +363,9 @@ int CMain::ReadConfig()
 						ID, Client(ID)->m_aName, Client(ID)->m_aUsername, Client(ID)->m_aType, Client(ID)->m_aHost, Client(ID)->m_aLocation, Client(ID)->m_aPassword);
 
 			}
+            
+            Client(ID)->m_clientObserver.setUsername(Client(ID)->m_aUsername);
+            Client(ID)->m_clientObserver.resetMsg();
 			ID++;
 		}
 	}
@@ -371,6 +394,9 @@ int CMain::Run()
 	m_JSONUpdateThreadData.pConfig = &m_Config;
 	void *LoadThread = thread_create(JSONUpdateThread, &m_JSONUpdateThreadData);
 	//thread_detach(LoadThread);
+    
+    //start msg bot
+    m_msgBot.startBot();
 
 	while(gs_Running)
 	{
