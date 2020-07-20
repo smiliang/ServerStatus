@@ -33,6 +33,12 @@ Port 35601 needs to be free and forwarded/open for running the server.
 ```
 git clone https://github.com/BotoX/ServerStatus.git
 cd ServerStatus/server
+
+*Open src/message.ccp
+*Replace c_botToken with your bot token.
+*Replace c_chatPasswd with your password.
+
+cmake .
 make
 ./sergate
 ```
