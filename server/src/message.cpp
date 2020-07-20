@@ -233,6 +233,11 @@ void MessageBot::startBot()
         dbg_msg("Bot", "SIGINT got %d\n", s);
         exit(0);
     });
+    
+    signal(SIGTERM, [](int s) {
+        dbg_msg("Bot", "SIGINT got %d\n", s);
+        exit(0);
+    });
 
     try {
         dbg_msg("Bot username: %s\n", m_bot->getApi().getMe()->username.c_str());
