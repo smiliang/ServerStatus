@@ -233,7 +233,7 @@ void MessageBot::startBot()
         dbg_msg("Bot username: %s\n", m_bot->getApi().getMe()->username.c_str());
         TgBot::TgLongPoll longPoll(*m_bot);
         while (true) {
-            dbg_msg("Long poll started\n");
+            dbg_msg("Bot", "Long poll started \n");
             longPoll.start();
         }
     } catch (TgBot::TgException& e) {
