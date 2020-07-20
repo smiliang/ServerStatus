@@ -30,19 +30,19 @@ void ClientObserver::setIpv6Online(bool online)
     m_Online6 = online;
 }
 
-void ClientObserver::setCPU(double cpu)
+void ClientObserver::setCPU(int cpu)
 {
     m_CPU = cpu;
-    if (cpu > 0.8999 && m_CPUMonitorTime == 0)
+    if (cpu > 89 && m_CPUMonitorTime == 0)
     {
         m_CPUMonitorTime = time_timestamp();//now
     }
-    if (cpu > 0.8999) {
+    if (cpu > 89) {
         if (cpu > m_CPUMax) {
             m_CPUMax = cpu;
         }
     }
-    else if(cpu < 0.9)
+    else if(cpu < 90)
     {
         m_CPUMax = 0;
         m_CPUMonitorTime = 0;
@@ -69,7 +69,7 @@ void ClientObserver::shouldSendMsg()
         msgType = m_Online6 ? MSG_CLIENT_IPv6ONLINE : MSG_CLIENT_IPv6OFFLINE;
     }
     else {
-        if (m_CPU > 0.8999 && m_CPUMonitorTime > 0)
+        if (m_CPU > 89 && m_CPUMonitorTime > 0)
         {
             if (time_timestamp() - m_CPUMonitorTime > 180) {//Cpu heavy load over 180s.
                 msgType = MSG_CLIENT_CPUOVERLOAD;
@@ -139,7 +139,7 @@ void ClientObserver::genMsg()
     }
     else if (MSG_CLIENT_CPUOVERLOAD == m_msgType)
     {
-        str_format(m_aMsg, sizeof(m_aMsg), "Node %s cpu overload, max cpu %f.", m_aUsername, m_CPUMax);
+        str_format(m_aMsg, sizeof(m_aMsg), "Node %s cpu overload, max cpu %d.", m_aUsername, m_CPUMax);
     }
     else
     {

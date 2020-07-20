@@ -27,8 +27,8 @@ private:
     bool m_Online6;
     bool m_Online6_last;
     
-    double m_CPU;
-    double m_CPUMax;
+    int m_CPU;
+    int m_CPUMax;
     int m_CPUMonitorTime;
     
     int m_msgType;
@@ -42,7 +42,7 @@ public:
     void setConnected(bool connected);
     void setIpv4Online(bool online);
     void setIpv6Online(bool online);
-    void setCPU(double cpu);
+    void setCPU(int cpu);
     void shouldSendMsg();
     void resetMsg();
 };
