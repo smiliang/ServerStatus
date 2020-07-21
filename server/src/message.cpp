@@ -123,7 +123,7 @@ void ClientObserver::genMsg()
     }
     else if (MSG_CLIENT_IPv4ONLINE == m_msgType)
     {
-        str_format(m_aMsg, sizeof(m_aMsg), "Node %s IPv4 is offline now.", m_aUsername);
+        str_format(m_aMsg, sizeof(m_aMsg), "Node %s IPv4 is online now.", m_aUsername);
     }
     else if (MSG_CLIENT_IPv4OFFLINE == m_msgType)
     {
@@ -131,7 +131,7 @@ void ClientObserver::genMsg()
     }
     else if (MSG_CLIENT_IPv6ONLINE == m_msgType)
     {
-        str_format(m_aMsg, sizeof(m_aMsg), "Node %s IPv6 is offline now.", m_aUsername);
+        str_format(m_aMsg, sizeof(m_aMsg), "Node %s IPv6 is online now.", m_aUsername);
     }
     else if (MSG_CLIENT_IPv6OFFLINE == m_msgType)
     {
