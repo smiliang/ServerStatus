@@ -219,6 +219,9 @@ Type=simple
 IgnoreSIGPIPE=no
 User=$USERNAME
 ExecStart=/path/to/client.py
+RemainAfterExit=no
+Restart=always
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target

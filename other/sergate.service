@@ -13,6 +13,9 @@ ExecReload=/bin/kill -HUP $MAINPID
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=sergate
+RemainAfterExit=no
+Restart=always
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
