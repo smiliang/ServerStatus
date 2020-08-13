@@ -174,7 +174,7 @@ void MessageBot::readChatId()
     constexpr const char *chatIdFileName = "chatId";
     IOHANDLE file = io_open(chatIdFileName, IOFLAG_READ);
     if (!file) {
-        dbg_msg("bot", "Couldn't open %s", chatIdFileName);
+        dbg_msg("Bot", "Couldn't open %s", chatIdFileName);
         return;
     }
     int fileSize = (int)io_length(file);
@@ -189,11 +189,11 @@ void MessageBot::readChatId()
     if (scanned == 1 && i > 0)
     {
         m_chatId = i;
-        dbg_msg("bot", "readChatId suc.");
+        dbg_msg("Bot", "readChatId suc.");
     }
     else
     {
-        dbg_msg("bot", "readChatId failed. %c %d", c, i);
+        dbg_msg("Bot", "readChatId failed. %c %d", c, i);
     }
     free(pFileData);
 }
@@ -247,14 +247,14 @@ void MessageBot::startBot()
             longPoll.start();
         }
     } catch (TgBot::TgException& e) {
-        dbg_msg("error: %s\n", e.what());
+        dbg_msg("Bot", "error: %s\n", e.what());
     }
 }
 
 void MessageBot::sendMessage(char *msg)
 {
     if (m_chatId < 1) {
-        dbg_msg("chatId not exist, msg discard %s", msg);
+        dbg_msg("Bot", "chatId not exist, msg discard %s", msg);
         return;
     }
     m_bot->getApi().sendMessage(m_chatId, std::string(msg));
