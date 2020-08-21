@@ -21,13 +21,13 @@ static volatile int gs_ReloadConfig = 0;
 
 static void ExitFunc(int Signal)
 {
-	printf("[EXIT] Caught signal %d\n", Signal);
+	dbg_msg("main", "[EXIT] Caught signal %d\n", Signal);
 	gs_Running = 0;
 }
 
 static void ReloadFunc(int Signal)
 {
-	printf("[RELOAD] Caught signal %d\n", Signal);
+	dbg_msg("main", "[RELOAD] Caught signal %d\n", Signal);
 	gs_ReloadConfig = 1;
 }
 
@@ -292,6 +292,7 @@ void CMain::JSONUpdateThread(void *pUser)
 		thread_sleep(1000);
 	}
 	fs_remove(pConfig->m_aJSONFile);
+	dbg_msg("main", "JSONUpdateThread");
 }
 
 int CMain::ReadConfig()
