@@ -112,14 +112,16 @@ class Traffic:
 		return avgrx, avgtx
 
 def liuliang():
-	NET_IN = 0
-	NET_OUT = 0
-	vnstat=os.popen('vnstat --json|jq \'.interfaces[0].traffic.months[0]\'').read()
-	vs=json.loads(vnstat)
-	if 'date' in vs and 'month' in vs['date'] and int(vs['date']['month']) == datetime.today().month:
-		NET_IN = int(vs['rx'])*1024
-		NET_OUT = int(vs['tx'])*1024
-	return NET_IN, NET_OUT
+       NET_IN = 0
+       NET_OUT = 0
+       vnstat=os.popen('vnstat --json|jq \'.interfaces[0].traffic.month\'').read()
+       vss=json.loads(vnstat)
+       for vs in vss:
+            if 'date' in vs and 'month' in vs['date'] and int(vs['date']['month']) == datetime.today().month and int(vs['date']['year']) == datetime.today().year:
+                NET_IN = int(vs['rx'])*1024
+                NET_OUT = int(vs['tx'])*1024
+                break
+       return NET_IN, NET_OUT
 
 def get_network(ip_version):
 	if(ip_version == 4):
