@@ -19,6 +19,7 @@ import json
 import subprocess
 import collections
 import ssl
+from datetime import datetime
 
 def get_uptime():
 	f = open('/proc/uptime', 'r')
@@ -113,13 +114,11 @@ class Traffic:
 def liuliang():
 	NET_IN = 0
 	NET_OUT = 0
-	vnstat=os.popen('vnstat --dumpdb').readlines()
-	for line in vnstat:
-		if line[0:4] == "m;0;":
-			mdata=line.split(";")
-			NET_IN=int(mdata[3])*1024*1024
-			NET_OUT=int(mdata[4])*1024*1024
-			break
+	vnstat=os.popen('vnstat --json|jq \'.interfaces[0].traffic.months[0]\'').read()
+	vs=json.loads(vnstat)
+	if 'date' in vs and 'month' in vs['date'] and int(vs['date']['month']) == datetime.today().month:
+		NET_IN = int(vs['rx'])*1024
+		NET_OUT = int(vs['tx'])*1024
 	return NET_IN, NET_OUT
 
 def get_network(ip_version):
