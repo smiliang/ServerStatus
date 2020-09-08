@@ -118,8 +118,8 @@ def liuliang():
        vss=json.loads(vnstat)
        for vs in vss:
             if 'date' in vs and 'month' in vs['date'] and int(vs['date']['month']) == datetime.today().month and int(vs['date']['year']) == datetime.today().year:
-                NET_IN = int(vs['rx'])*1024
-                NET_OUT = int(vs['tx'])*1024
+                NET_IN = int(vs['rx'])
+                NET_OUT = int(vs['tx'])
                 break
        return NET_IN, NET_OUT
 
