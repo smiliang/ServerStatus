@@ -21,11 +21,11 @@ class ClientObserver
 private:
     char m_aUsername[128];
     bool m_Connected;
-    bool m_Connected_last;
+    double m_lostConnectionTime;
     bool m_Online4;
-    bool m_Online4_last;
+    double m_offline4Time;
     bool m_Online6;
-    bool m_Online6_last;
+    double m_offline6Time;
     
     int m_CPU;
     int m_CPUMax;

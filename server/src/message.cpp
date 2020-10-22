@@ -7,6 +7,8 @@
 const char* c_botToken = "PLACE YOUR TOKEN HERE";
 const char* c_chatPasswd = "PLACE YOUR PASSWD HERE";
 
+const int offlineMsgDelay = 120;
+
 void ClientObserver::setUsername(char *username)
 {
     str_copy(m_aUsername, username, sizeof(m_aUsername));
@@ -14,19 +16,16 @@ void ClientObserver::setUsername(char *username)
 
 void ClientObserver::setConnected(bool connected)
 {
-    m_Connected_last = m_Connected;
     m_Connected = connected;
 }
 
 void ClientObserver::setIpv4Online(bool online)
 {
-    m_Online4_last = m_Online4;
     m_Online4 = online;
 }
 
 void ClientObserver::setIpv6Online(bool online)
 {
-    m_Online6_last = m_Online6;
     m_Online6 = online;
 }
 
@@ -52,21 +51,62 @@ void ClientObserver::setCPU(int cpu)
 void ClientObserver::shouldSendMsg()
 {
     int msgType = MSG_CLIENT_UNKNOWN;
-    if (m_Connected != m_Connected_last)
+    if (!m_Connected)
     {
-        msgType = m_Connected ? MSG_CLIENT_ONLINE : MSG_CLIENT_OFFLINE;
+        if (0 == m_lostConnectionTime)
+        {
+            m_lostConnectionTime = time_timestamp();
+        }
+        else if (time_timestamp() - m_lostConnectionTime > offlineMsgDelay)
+        {//remind after 2 minutes to prevent continuous alert on unstable network
+            msgType = MSG_CLIENT_OFFLINE;
+        }
     }
-    else if (!m_Connected)
+    else if(m_Connected && m_lostConnectionTime > 0)
     {
-        msgType = MSG_CLIENT_OFFLINE;
+        if (time_timestamp() - m_lostConnectionTime > offlineMsgDelay)
+        {
+            msgType = MSG_CLIENT_ONLINE;
+        }
+        m_lostConnectionTime = 0;
     }
-    else if(m_Online4 != m_Online4_last)
+    else if(!m_Online4)
     {
-        msgType = m_Online4 ? MSG_CLIENT_IPv4ONLINE : MSG_CLIENT_IPv4OFFLINE;
+        if (0 == m_offline4Time)
+        {
+            m_offline4Time = time_timestamp();
+        }
+        else if(time_timestamp() - m_offline4Time > offlineMsgDelay)
+        {
+            msgType = MSG_CLIENT_IPv4OFFLINE;
+        }
     }
-    else if (m_Online6 != m_Online6_last)
+    else if(m_Online4 && m_offline4Time > 0)
     {
-        msgType = m_Online6 ? MSG_CLIENT_IPv6ONLINE : MSG_CLIENT_IPv6OFFLINE;
+        if (time_timestamp() - m_offline4Time > offlineMsgDelay)
+        {
+            msgType = MSG_CLIENT_IPv4ONLINE;
+        }
+        m_offline4Time = 0;
+    }
+    else if (!m_Online6)
+    {
+        if (0 == m_offline6Time)
+        {
+            m_offline6Time = time_timestamp();
+        }
+        else if(time_timestamp() - m_offline6Time > offlineMsgDelay)
+        {
+            msgType = MSG_CLIENT_IPv6OFFLINE;
+        }
+    }
+    else if(m_Online6 && m_offline6Time > 0)
+    {
+        if (time_timestamp() - m_offline6Time > offlineMsgDelay)
+        {
+            msgType = MSG_CLIENT_IPv6ONLINE;
+        }
+        m_offline6Time = 0;
     }
     else {
         if (m_CPU > 89 && m_CPUMonitorTime > 0)
