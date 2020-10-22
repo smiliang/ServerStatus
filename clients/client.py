@@ -21,6 +21,8 @@ import collections
 import ssl
 from datetime import datetime
 
+g_vnstat_dumpdb = True
+
 def get_uptime():
 	f = open('/proc/uptime', 'r')
 	uptime = f.readline()
@@ -111,7 +113,26 @@ class Traffic:
 
 		return avgrx, avgtx
 
-def liuliang():
+def testVnstatDumpDb():
+	vnstat=os.popen('vnstat --dumpdb').readlines()
+	for line in vnstat:
+		if "Unknown parameter" in line:
+			global g_vnstat_dumpdb
+			g_vnstat_dumpdb = False
+
+def vnstatDumpdb():
+	NET_IN = 0
+	NET_OUT = 0
+	vnstat=os.popen('vnstat --dumpdb').readlines()
+	for line in vnstat:
+		if line[0:4] == "m;0;":
+			mdata=line.split(";")
+			NET_IN=int(mdata[3])*1024*1024
+			NET_OUT=int(mdata[4])*1024*1024
+			break
+	return NET_IN, NET_OUT
+
+def vnstatJson():
        NET_IN = 0
        NET_OUT = 0
        vnstat=os.popen('vnstat --json|jq \'.interfaces[0].traffic.month\'').read()
@@ -122,6 +143,12 @@ def liuliang():
                 NET_OUT = int(vs['tx'])
                 break
        return NET_IN, NET_OUT
+
+def liuliang():
+	if g_vnstat_dumpdb:
+		return vnstatDumpdb()
+	else:
+		return vnstatJson()
 
 def get_network(ip_version):
 	if(ip_version == 4):
@@ -137,6 +164,7 @@ def get_network(ip_version):
 
 if __name__ == '__main__':
 	socket.setdefaulttimeout(30)
+	testVnstatDumpDb()
 	while 1:
 		try:
 			print("Connecting...")
