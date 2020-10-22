@@ -8,6 +8,7 @@ const char* c_botToken = "PLACE YOUR TOKEN HERE";
 const char* c_chatPasswd = "PLACE YOUR PASSWD HERE";
 
 const int offlineMsgDelay = 120;
+const int msgInterval = 300;
 
 void ClientObserver::setUsername(char *username)
 {
@@ -91,11 +92,12 @@ void ClientObserver::shouldSendMsg()
     }
     else if (!m_Online6)
     {
+        double now = time_timestamp();
         if (0 == m_offline6Time)
         {
-            m_offline6Time = time_timestamp();
+            m_offline6Time = now;
         }
-        else if(time_timestamp() - m_offline6Time > offlineMsgDelay)
+        else if(now - m_offline6Time > offlineMsgDelay && now - m_offline6Time < (offlineMsgDelay + 2*msgInterval + 10))
         {
             msgType = MSG_CLIENT_IPv6OFFLINE;
         }
@@ -108,14 +110,13 @@ void ClientObserver::shouldSendMsg()
         }
         m_offline6Time = 0;
     }
-    else {
-        if (m_CPU > 89 && m_CPUMonitorTime > 0)
-        {
-            if (time_timestamp() - m_CPUMonitorTime > 180) {//Cpu heavy load over 180s.
-                msgType = MSG_CLIENT_CPUOVERLOAD;
-            }
+    if (MSG_CLIENT_UNKNOWN == msgType && m_CPU > 89 && m_CPUMonitorTime > 0)
+    {
+        if (time_timestamp() - m_CPUMonitorTime > 180) {//Cpu heavy load over 180s.
+            msgType = MSG_CLIENT_CPUOVERLOAD;
         }
     }
+
     if (MSG_CLIENT_UNKNOWN == msgType)
     {
         m_msgType = MSG_CLIENT_UNKNOWN;
@@ -135,8 +136,8 @@ void ClientObserver::shouldSendMsg()
             if (m_msgNum < 3)
             {//same msg limit to 3.
                 int now = time_timestamp();
-                if (now - m_msgTime > m_msgNum*300)
-                {//remind every 300*m_msgNum seconds.
+                if (now - m_msgTime > m_msgNum*msgInterval)
+                {//remind every msgInterval*m_msgNum seconds.
                     m_msgTime = now;
                     ++m_msgNum;
                     
