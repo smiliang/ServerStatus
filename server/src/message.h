@@ -26,6 +26,7 @@ private:
     double m_offline4Time;
     bool m_Online6;
     double m_offline6Time;
+    bool m_disableIPv6Msg;
     
     int m_CPU;
     int m_CPUMax;
@@ -42,6 +43,7 @@ public:
     void setConnected(bool connected);
     void setIpv4Online(bool online);
     void setIpv6Online(bool online);
+    void setDisableIPv6Msg(bool disabled);
     void setCPU(int cpu);
     void shouldSendMsg();
     void resetMsg();

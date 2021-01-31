@@ -366,6 +366,7 @@ int CMain::ReadConfig()
 			}
             
             Client(ID)->m_clientObserver.setUsername(Client(ID)->m_aUsername);
+			Client(ID)->m_clientObserver.setDisableIPv6Msg(rStart[i]["IPv6MsgDisabled"].u.boolean);
             Client(ID)->m_clientObserver.resetMsg();
 			ID++;
 		}

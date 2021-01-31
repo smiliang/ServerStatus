@@ -30,6 +30,11 @@ void ClientObserver::setIpv6Online(bool online)
     m_Online6 = online;
 }
 
+void ClientObserver::setDisableIPv6Msg(bool disabled)
+{
+    m_disableIPv6Msg = disabled;
+}
+
 void ClientObserver::setCPU(int cpu)
 {
     m_CPU = cpu;
@@ -90,7 +95,7 @@ void ClientObserver::shouldSendMsg()
         }
         m_offline4Time = 0;
     }
-    else if (!m_Online6)
+    else if (!m_disableIPv6Msg && !m_Online6)
     {
         double now = time_timestamp();
         if (0 == m_offline6Time)
@@ -102,7 +107,7 @@ void ClientObserver::shouldSendMsg()
             msgType = MSG_CLIENT_IPv6OFFLINE;
         }
     }
-    else if(m_Online6 && m_offline6Time > 0)
+    else if(!m_disableIPv6Msg && m_Online6 && m_offline6Time > 0)
     {
         if (time_timestamp() - m_offline6Time > offlineMsgDelay)
         {
