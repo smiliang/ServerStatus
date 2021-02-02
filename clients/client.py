@@ -93,7 +93,7 @@ class Traffic:
 
 		for dev in net_dev[2:]:
 			dev = dev.split(':')
-			if dev[0].strip() == "lo" or dev[0].find("tun") > -1 or dev[0].find("vethd") > -1 or dev[0].find("docker") > -1:
+			if dev[0].strip() == "lo" or dev[0].find("tun") > -1 or dev[0].find("veth") > -1 or dev[0].find("docker") > -1:
 				continue
 			dev = dev[1].split()
 			avgrx += int(dev[0])
