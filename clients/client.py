@@ -133,16 +133,16 @@ def vnstatDumpdb():
 	return NET_IN, NET_OUT
 
 def vnstatJson():
-       NET_IN = 0
-       NET_OUT = 0
-       vnstat=os.popen('vnstat --json|jq \'.interfaces[0].traffic.month\'').read()
-       vss=json.loads(vnstat)
-       for vs in vss:
-            if 'date' in vs and 'month' in vs['date'] and int(vs['date']['month']) == datetime.today().month and int(vs['date']['year']) == datetime.today().year:
-                NET_IN = int(vs['rx'])
-                NET_OUT = int(vs['tx'])
-                break
-       return NET_IN, NET_OUT
+	NET_IN = 0
+	NET_OUT = 0
+	vnstat=os.popen('vnstat --json|jq \'.interfaces[0].traffic.month\'').read()
+	vss=json.loads(vnstat)
+	for vs in vss:
+		if 'date' in vs and 'month' in vs['date'] and int(vs['date']['month']) == datetime.today().month and int(vs['date']['year']) == datetime.today().year:
+			NET_IN = int(vs['rx'])
+			NET_OUT = int(vs['tx'])
+			break
+	return NET_IN, NET_OUT
 
 def liuliang():
 	if g_vnstat_dumpdb:
@@ -174,10 +174,11 @@ if __name__ == '__main__':
 			else:
 				s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			s.connect((SERVER, PORT))
-			data = s.recv(1024)
+			data = s.recv(1024).decode()
 			if data.find("Authentication required") > -1:
-				s.send(USER + ':' + PASSWORD + '\n')
-				data = s.recv(1024)
+				auth = USER + ':' + PASSWORD + '\n'
+				s.send(auth.encode())
+				data = s.recv(1024).decode()
 				if data.find("Authentication successful") < 0:
 					print(data)
 					raise socket.error
@@ -187,7 +188,7 @@ if __name__ == '__main__':
 
 			print(data)
 			if data.find("IPv4") == -1 and data.find("IPv6") == -1:
-				data = s.recv(1024)
+				data = s.recv(1024).decode()
 				print(data)
 
 			timer = 0
@@ -232,7 +233,8 @@ if __name__ == '__main__':
 				array['network_in'] = NET_IN
 				array['network_out'] = NET_OUT
 
-				s.send("update " + json.dumps(array) + "\n")
+				updateContent = "update " + json.dumps(array) + "\n"
+				s.send(updateContent.encode())
 		except KeyboardInterrupt:
 			raise
 		except socket.error:
