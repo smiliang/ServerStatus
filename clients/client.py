@@ -66,6 +66,7 @@ def get_time():
 	for i in range(len(time_list))  :
 		time_list[i] = int(time_list[i])
 	return time_list
+
 def delta_time():
 	x = get_time()
 	time.sleep(INTERVAL)
@@ -73,6 +74,7 @@ def delta_time():
 	for i in range(len(x)):
 		y[i]-=x[i]
 	return y
+
 def get_cpu():
 	t = delta_time()
 	st = sum(t)
@@ -85,6 +87,7 @@ class Traffic:
 	def __init__(self):
 		self.rx = collections.deque(maxlen=10)
 		self.tx = collections.deque(maxlen=10)
+
 	def get(self):
 		f = open('/proc/net/dev', 'r')
 		net_dev = f.readlines()
