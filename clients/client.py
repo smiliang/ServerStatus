@@ -218,7 +218,7 @@ if __name__ == '__main__':
 				array = {}
 				if not timer:
 					array['online' + str(check_ip)] = get_network(check_ip)
-					timer = 10
+					timer = 120
 				else:
 					timer -= 1*INTERVAL
 
