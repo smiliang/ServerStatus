@@ -159,10 +159,14 @@ def get_network(ip_version):
 	elif(ip_version == 6):
 		HOST = "ipv6.google.com"
 	try:
-		s = socket.create_connection((HOST, 80), 2)
+		socket.create_connection((HOST, 80), 2).close()
 		return True
 	except:
-		pass
+		try:
+			socket.create_connection((HOST, 443), 2).close()
+			return True
+		except:
+			pass
 	return False
 
 if __name__ == '__main__':
