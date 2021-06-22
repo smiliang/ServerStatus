@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import syslog
+
 SERVER = "status.botox.bz"
 PORT = 35601
 USER = "s01"
@@ -161,12 +163,13 @@ def get_network(ip_version):
 	try:
 		socket.create_connection((HOST, 80), 2).close()
 		return True
-	except:
+	except Exception as e:
 		try:
+			syslog.syslog(syslog.LOG_WARNING, f"ServerStatus Network test 80 exception {e}")
 			socket.create_connection((HOST, 443), 2).close()
 			return True
-		except:
-			pass
+		except Exception as e1:
+			syslog.syslog(syslog.LOG_WARNING, f"ServerStatus Network test 443 exception {e1}")
 	return False
 
 if __name__ == '__main__':
@@ -174,7 +177,7 @@ if __name__ == '__main__':
 	testVnstatDumpDb()
 	while 1:
 		try:
-			print("Connecting...")
+			syslog.syslog("ServerStatus Connecting...")
 			if SSLENABLED:
 				st = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 				s = ssl.wrap_socket(st, cert_reqs=ssl.CERT_REQUIRED, ca_certs=SSLCERTPATH)
@@ -187,16 +190,16 @@ if __name__ == '__main__':
 				s.send(auth.encode())
 				data = s.recv(1024).decode()
 				if data.find("Authentication successful") < 0:
-					print(data)
+					syslog.syslog(syslog.LOG_ERR, f"ServerStatus Auth Error: {data}")
 					raise socket.error
 			else:
-				print(data)
+				syslog.syslog(syslog.LOG_ERR, f"ServerStatus Server Response Error: {data}")
 				raise socket.error
 
-			print(data)
+			syslog.syslog(f"ServerStatus connected. {data}")
 			if data.find("IPv4") == -1 and data.find("IPv6") == -1:
 				data = s.recv(1024).decode()
-				print(data)
+				syslog.syslog(f"ServerStatus Server Response: {data}")
 
 			timer = 0
 			check_ip = 0
@@ -205,7 +208,7 @@ if __name__ == '__main__':
 			elif data.find("IPv6") > -1:
 				check_ip = 4
 			else:
-				print(data)
+				syslog.syslog(syslog.LOG_ERR, f"ServerStatus check ip info error: {data}")
 				raise socket.error
 
 			traffic = Traffic()
@@ -245,11 +248,11 @@ if __name__ == '__main__':
 		except KeyboardInterrupt:
 			raise
 		except socket.error:
-			print("Disconnected...")
+			syslog.syslog(syslog.LOG_ERR, f"ServerStatus Disconnected...{socket.error}")
 			# keep on trying after a disconnect
 			s.close()
 			time.sleep(3)
 		except Exception as e:
-			print("Caught Exception:", e)
+			syslog.syslog(syslog.LOG_ERR, f"ServerStatus Caught Exception: {e}")
 			s.close()
 			time.sleep(3)
