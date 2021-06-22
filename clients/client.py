@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import syslog
-
 SERVER = "status.botox.bz"
 PORT = 35601
 USER = "s01"
@@ -22,6 +20,7 @@ import subprocess
 import collections
 import ssl
 from datetime import datetime
+import syslog
 
 g_vnstat_dumpdb = True
 
