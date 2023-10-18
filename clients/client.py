@@ -20,7 +20,7 @@ import json
 import subprocess
 import collections
 import ssl
-from datetime import datetime
+from datetime import date
 import calendar
 import syslog
 
@@ -143,14 +143,14 @@ def vnstatJson():
 	NET_OUT = 0
 	vnstat=os.popen('vnstat --json|jq \'.interfaces[0].traffic.day\'').read()
 	vss=json.loads(vnstat)
-	today = datetime.day
-	tomonth = datetime.month
-	tomonth_last_day = calendar.monthrange(datetime.year, tomonth)[1]
+	today = date.today().day
+	tomonth = date.today().month
+	tomonth_last_day = calendar.monthrange(date.today().year, tomonth)[1]
 	#If the traffic reset day is beyond the month range, it should be the last day of the month.
 	tomonth_rst_day = TRAFFIC_RST_DAY if TRAFFIC_RST_DAY <= tomonth_last_day else tomonth_last_day
 	lamonth = tomonth -1 if tomonth -1 > 0 else 12
 	#If previous month is 12, the year of previous month should be datetime.year - 1.
-	lamyear = datetime.year if tomonth -1 > 0 else datetime.year -1
+	lamyear = date.today().year if tomonth -1 > 0 else date.today().year -1
 	lamonth_last_day = calendar.monthrange(lamyear, lamonth)[1]
 	lamonth_rst_day = TRAFFIC_RST_DAY if TRAFFIC_RST_DAY <= lamonth_last_day else lamonth_last_day
 	for vs in vss:
@@ -167,7 +167,6 @@ def vnstatJson():
 			elif today >= tomonth_rst_day and month == tomonth and day >= tomonth_rst_day:
 				NET_IN += int(vs['rx'])
 				NET_OUT += int(vs['tx'])
-			break
 	return NET_IN, NET_OUT
 
 def liuliang():
