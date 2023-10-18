@@ -95,6 +95,7 @@ function uptime() {
 						"<td id=\"load\">Loading...</td>" +
 						"<td id=\"network\">Loading...</td>" +
 						"<td id=\"traffic\">Loading...</td>" +
+						"<td id=\"traffic_rst_day\">Loading...</td>" +
 						"<td id=\"cpu\"><div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading...</small></div></div></td>" +
 						"<td id=\"memory\"><div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading...</small></div></div></td>" +
 						"<td id=\"hdd\"><div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-warning\"><small>Loading...</small></div></div></td>" +
@@ -151,6 +152,7 @@ function uptime() {
 					TableRow.children["load"].innerHTML = "–";
 					TableRow.children["network"].innerHTML = "–";
 					TableRow.children["traffic"].innerHTML = "–";
+					TableRow.children["traffic_rst_day"].innerHTML = "–"
 					TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-danger";
 					TableRow.children["cpu"].children[0].children[0].style.width = "100%";
 					TableRow.children["cpu"].children[0].children[0].innerHTML = "<small>Down</small>";
@@ -224,6 +226,9 @@ function uptime() {
 					trafficstr += (result.servers[i].network_out/1024/1024/1024/1024).toFixed(3) + "T";
 				TableRow.children["traffic"].innerHTML = trafficstr;
 
+				// Traffic reset Day
+				TableRow.children["traffic_rst_day"].innerHTML = result.servers[i].traffic_rst_day.toFixed(0);
+
 				// CPU
 				if (result.servers[i].cpu >= 90)
 					TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-danger";
@@ -284,6 +289,7 @@ function uptime() {
 				TableRow.children["load"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-error\"><small>Error</small></div></div>";
 				TableRow.children["network"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-error\"><small>Error</small></div></div>";
 				TableRow.children["traffic"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-error\"><small>Error</small></div></div>";				TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-error";
+				TableRow.children["traffic_rst_day"].innerHTML = "<div class=\"progress progress-striped active\"><div style=\"width: 100%;\" class=\"progress-bar progress-bar-error\"><small>Error</small></div></div>";				TableRow.children["cpu"].children[0].children[0].className = "progress-bar progress-bar-error";
 				TableRow.children["cpu"].children[0].children[0].style.width = "100%";
 				TableRow.children["cpu"].children[0].children[0].innerHTML = "<small>Error</small>";
 				TableRow.children["memory"].children[0].children[0].className = "progress-bar progress-bar-error";

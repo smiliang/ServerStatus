@@ -8,6 +8,7 @@ PASSWORD = "some-hard-to-guess-copy-paste-password"
 INTERVAL = 1 # Update interval
 SSLENABLED = 0
 SSLCERTPATH = "ssl cert file path"
+TRAFFIC_RST_DAY = 1
 
 import socket
 import time
@@ -20,6 +21,7 @@ import subprocess
 import collections
 import ssl
 from datetime import datetime
+import calendar
 import syslog
 
 g_vnstat_dumpdb = True
@@ -139,12 +141,32 @@ def vnstatDumpdb():
 def vnstatJson():
 	NET_IN = 0
 	NET_OUT = 0
-	vnstat=os.popen('vnstat --json|jq \'.interfaces[0].traffic.month\'').read()
+	vnstat=os.popen('vnstat --json|jq \'.interfaces[0].traffic.day\'').read()
 	vss=json.loads(vnstat)
+	today = datetime.day
+	tomonth = datetime.month
+	tomonth_last_day = calendar.monthrange(datetime.year, tomonth)[1]
+	#If the traffic reset day is beyond the month range, it should be the last day of the month.
+	tomonth_rst_day = TRAFFIC_RST_DAY if TRAFFIC_RST_DAY <= tomonth_last_day else tomonth_last_day
+	lamonth = tomonth -1 if tomonth -1 > 0 else 12
+	#If previous month is 12, the year of previous month should be datetime.year - 1.
+	lamyear = datetime.year if tomonth -1 > 0 else datetime.year -1
+	lamonth_last_day = calendar.monthrange(lamyear, lamonth)[1]
+	lamonth_rst_day = TRAFFIC_RST_DAY if TRAFFIC_RST_DAY <= lamonth_last_day else lamonth_last_day
 	for vs in vss:
-		if 'date' in vs and 'month' in vs['date'] and int(vs['date']['month']) == datetime.today().month and int(vs['date']['year']) == datetime.today().year:
-			NET_IN = int(vs['rx'])
-			NET_OUT = int(vs['tx'])
+		if 'date' in vs and 'month' in vs['date'] and 'day' in vs['date']:
+			month = int(vs['date']['month'])
+			day = int(vs['date']['day']) 
+			#If today is less than the reset day of this month, all the traffic in this month should be calculated;
+			#last month traffic should be calculated if the day is more than or equal to the reset day of last month.
+			if today < tomonth_rst_day and (month == tomonth or (lamonth == month and day >= lamonth_rst_day)):
+				NET_IN += int(vs['rx'])
+				NET_OUT += int(vs['tx'])
+			#If today is more than or equal to the reset day of this month, traffic in this month should be calculted
+			#only if the day is more than or euqal to the reset day of this month.
+			elif today >= tomonth_rst_day and month == tomonth and day >= tomonth_rst_day:
+				NET_IN += int(vs['rx'])
+				NET_OUT += int(vs['tx'])
 			break
 	return NET_IN, NET_OUT
 
@@ -241,6 +263,7 @@ if __name__ == '__main__':
 				array['network_tx'] = NetTx
 				array['network_in'] = NET_IN
 				array['network_out'] = NET_OUT
+				array['traffic_rst_day'] = TRAFFIC_RST_DAY
 
 				updateContent = "update " + json.dumps(array) + "\n"
 				s.send(updateContent.encode())

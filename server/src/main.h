@@ -52,6 +52,7 @@ class CMain
 			int64_t m_NetworkTx;
 			int64_t m_NetworkIn;
 			int64_t m_NetworkOut;
+			int64_t m_TrafficRstDay;
 			int64_t m_MemTotal;
 			int64_t m_MemUsed;
 			int64_t m_SwapTotal;
