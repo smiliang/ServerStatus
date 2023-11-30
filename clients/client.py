@@ -25,6 +25,7 @@ import calendar
 import syslog
 
 g_vnstat_dumpdb = True
+g_default_NIC = "eth0"
 
 def get_uptime():
 	f = open('/proc/uptime', 'r')
@@ -125,6 +126,8 @@ def testVnstatDumpDb():
 		if "Unknown parameter" in line:
 			global g_vnstat_dumpdb
 			g_vnstat_dumpdb = False
+			global g_default_NIC
+			g_default_NIC = os.popen('ip -o -4 route show to default | awk \'{print $5}\'').read().strip()
 
 def vnstatDumpdb():
 	NET_IN = 0
@@ -141,7 +144,7 @@ def vnstatDumpdb():
 def vnstatJson():
 	NET_IN = 0
 	NET_OUT = 0
-	vnstat=os.popen('vnstat --json|jq \'.interfaces[0].traffic.day\'').read()
+	vnstat=os.popen('vnstat --json|jq \'.interfaces[] | select(.name=="' + g_default_NIC + '")| .traffic.day\'').read()
 	vss=json.loads(vnstat)
 	today = date.today().day
 	tomonth = date.today().month
