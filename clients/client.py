@@ -127,7 +127,7 @@ def testVnstatDumpDb():
 			global g_vnstat_dumpdb
 			g_vnstat_dumpdb = False
 			global g_default_NIC
-			g_default_NIC = os.popen('ip -o -4 route show to default | head -1 | awk \'{print $5}\'').read().strip()
+			g_default_NIC = os.popen('ip -o -4 route show to default | head -1 | rg -o "dev ([[:alnum:]]+)" -r \'$1\'').read().strip()
 
 def vnstatDumpdb():
 	NET_IN = 0
