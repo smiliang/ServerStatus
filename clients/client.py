@@ -203,7 +203,12 @@ if __name__ == '__main__':
 			syslog.syslog("ServerStatus Connecting...")
 			if SSLENABLED:
 				st = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-				s = ssl.wrap_socket(st, cert_reqs=ssl.CERT_REQUIRED, ca_certs=SSLCERTPATH)
+				contextInstance = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT)
+				contextInstance.verify_mode = ssl.CERT_REQUIRED
+				contextInstance.check_hostname = False
+				contextInstance.load_verify_locations(cafile=SSLCERTPATH)
+				s = contextInstance.wrap_socket(st)
+				#s = ssl.wrap_socket(st, cert_reqs=ssl.CERT_REQUIRED, ca_certs=SSLCERTPATH)
 			else:
 				s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			s.connect((SERVER, PORT))
