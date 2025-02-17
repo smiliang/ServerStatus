@@ -213,6 +213,7 @@ if __name__ == '__main__':
 				s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			s.connect((SERVER, PORT))
 			data = s.recv(1024).decode()
+			data = data.replace(chr(0), "")
 			if data.find("Authentication required") > -1:
 				auth = USER + ':' + PASSWORD + '\n'
 				s.send(auth.encode())
