@@ -218,6 +218,7 @@ if __name__ == '__main__':
 				auth = USER + ':' + PASSWORD + '\n'
 				s.send(auth.encode())
 				data = s.recv(1024).decode()
+				data = data.replace(chr(0), "")
 				if data.find("Authentication successful") < 0:
 					syslog.syslog(syslog.LOG_ERR, f"ServerStatus Auth Error: {data}")
 					raise socket.error
@@ -228,6 +229,7 @@ if __name__ == '__main__':
 			syslog.syslog(f"ServerStatus connected. {data}")
 			if data.find("IPv4") == -1 and data.find("IPv6") == -1:
 				data = s.recv(1024).decode()
+				data = data.replace(chr(0), "")
 				syslog.syslog(f"ServerStatus Server Response: {data}")
 
 			timer = 0
